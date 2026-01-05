@@ -196,7 +196,7 @@ export default function HomePage() {
             ].map((movie) => (
               <div
                 key={movie.title}
-                className="group relative aspect-[2/3] min-h-[240px] sm:min-h-[280px] md:min-h-[340px] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_18px_45px_rgba(0,0,0,0.85)]"
+                className="group relative aspect-2/3in-h-[240px] sm:min-h-70 md:min-h-85 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/80 shadow-[0_18px_45px_rgba(0,0,0,0.85)]"
               >
                 <div
                   className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0,rgba(255,255,255,0.25)_0,transparent_55%),radial-gradient(circle_at_80%_100%,rgba(255,255,255,0.18)_0,transparent_55%)] opacity-60 group-hover:opacity-80 transition-opacity"
@@ -205,7 +205,7 @@ export default function HomePage() {
                   className="absolute inset-0 bg-cover bg-center mix-blend-screen opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                   style={{ backgroundImage: `url(${movie.src})` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-3 text-left">
                   <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500 mb-1">
                     Title
