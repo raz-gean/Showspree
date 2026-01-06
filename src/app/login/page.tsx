@@ -1,46 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { signIn } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/home";
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+        callbackUrl,
       });
 
-      const data = await res.json();
+      if (!res) {
+        setError("Unexpected error. Please try again.");
+        return;
+      }
+
+      if (res.error) {
+        setError("Invalid email or password.");
+        return;
+      }
 
       if (res.ok) {
-        router.push("/login");
-      } else {
-        setError(data.error || "Registration failed");
+        router.push(callbackUrl);
       }
     } catch (err) {
-      setError("An error occurred. Check console for details.");
-      console.error("Signup error:", err);
+      console.error("Login error", err);
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -52,15 +55,15 @@ export default function RegisterPage() {
       <div className="absolute inset-0 -z-10">
         <div
           className="absolute inset-0 bg-cover bg-center brightness-110"
-          style={{ backgroundImage: "url(/images/backgroundsignup.jpg)" }}
+          style={{ backgroundImage: "url(/images/backgroundimglogin.jpg)" }}
         />
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
       <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-black/40 backdrop-blur-xl p-6 shadow-[0_18px_45px_rgba(0,0,0,0.9)]">
-        <h1 className="text-center text-2xl font-semibold mb-2">Create account</h1>
+        <h1 className="text-center text-2xl font-semibold mb-2">Sign in</h1>
         <p className="mb-4 text-center text-xs text-zinc-400 uppercase tracking-[0.25em]">
-          Join Showspree
+          Welcome back to Showspree
         </p>
 
         {error && (
@@ -71,37 +74,24 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-1 text-sm">
-            <label className="block text-zinc-300">Name</label>
-            <input
-              className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-50 outline-none focus:border-white/80"
-              placeholder="Name"
-              value={name ?? ""}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-1 text-sm">
             <label className="block text-zinc-300">Email</label>
             <input
-              className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-50 outline-none focus:border-white/80"
-              placeholder="Email"
               type="email"
-              value={email ?? ""}
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-50 outline-none focus:border-white/80"
             />
           </div>
 
           <div className="space-y-1 text-sm">
             <label className="block text-zinc-300">Password</label>
             <input
-              className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-50 outline-none focus:border-white/80"
-              placeholder="Password"
               type="password"
-              value={password ?? ""}
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-50 outline-none focus:border-white/80"
             />
           </div>
 
@@ -110,17 +100,17 @@ export default function RegisterPage() {
             disabled={loading}
             className="mt-2 w-full rounded-full bg-white py-2 text-sm font-semibold text-black shadow-[0_10px_30px_rgba(0,0,0,0.7)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.9)] disabled:opacity-60"
           >
-            {loading ? "Signing up..." : "Sign up"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-xs text-zinc-500">
-          Already have an account?{" "}
+          New here?{" "}
           <Link
-            href="/login"
+            href="/register"
             className="text-zinc-200 underline-offset-4 hover:underline"
           >
-            Log in
+            Create an account
           </Link>
         </p>
       </div>
