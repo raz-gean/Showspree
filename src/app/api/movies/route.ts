@@ -1,31 +1,33 @@
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { MovieService } from "@/lib/services/movie.service";
-import { authOptions } from "@/lib/auth";
-
-export const runtime = "nodejs"; // Very important for Prisma
+import { MovieRepository } from "@/lib/repositories/movie.repository";
+// import { requireUser } from "@/lib/auth"; // Uncomment to protect POST
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
-
-  if(!session){
-    return NextResponse.json(
-      {error: "unauthorized" },
-      {status: 401}
-    );
+  try {
+    const movies = await MovieRepository.getAll();
+    return NextResponse.json(movies);
+  } catch (err) {
+    console.error("GET /api/movies error", err);
+    return NextResponse.json({ error: "Failed to fetch movies" }, { status: 500 });
   }
-
-  const movies = await MovieService.listMovies();
-  return NextResponse.json(movies);
 }
 
-// Optional POST for adding movies (testing/demo)
-export async function POST(req: Request) {
-  const body = await req.json();
-  const movie = await MovieService.addMovie(
-    body.title,
-    body.description,
-    body.genre
-  );
-  return NextResponse.json(movie);
+export async function POST(request: Request) {
+  try {
+    // const { userId } = await requireUser();
+    const body = await request.json();
+    const { title, description, genre } = body ?? {};
+    if (!title || !genre) {
+      return NextResponse.json({ error: "title and genre are required" }, { status: 400 });
+    }
+    const movie = await MovieRepository.create({
+      title: String(title),
+      description: String(description ?? ""),
+      genre: String(genre),
+    });
+    return NextResponse.json(movie, { status: 201 });
+  } catch (err) {
+    console.error("POST /api/movies error", err);
+    return NextResponse.json({ error: "Failed to create movie" }, { status: 500 });
+  }
 }

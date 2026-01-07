@@ -1,14 +1,15 @@
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/db";
 import type { NextAuthOptions } from "next-auth";
+import { getServerSession } from "next-auth";
 
 const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
-    Credentials({
+    CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
@@ -34,6 +35,26 @@ const authOptions: NextAuthOptions = {
     }),
   ],
 };
+
+export type Session =
+  | {
+      userId: string;
+      email?: string;
+    }
+  | null;
+
+export async function getSession(): Promise<Session> {
+  const session = await getServerSession(authOptions);
+  const user = session?.user as { id?: string; email?: string } | undefined;
+  if (!user?.id) return null;
+  return { userId: user.id, email: user.email };
+}
+
+export async function requireUser() {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+  return session;
+}
 
 export { authOptions };
 export default authOptions;
