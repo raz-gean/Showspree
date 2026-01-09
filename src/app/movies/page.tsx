@@ -90,7 +90,7 @@ export default async function MoviesPage() {
             {spotlightCards.map((card) => (
               <div
                 key={card.title}
-                className="group rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900 to-zinc-950 p-4 text-sm shadow-lg shadow-black/40 transition hover:border-white/30 hover:-translate-y-0.5"
+                className="group rounded-2xl border border-white/10 bg-linear-to-br from-zinc-900 to-zinc-950 p-4 text-sm shadow-lg shadow-black/40 transition hover:border-white/30 hover:-translate-y-0.5"
               >
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
                   {card.tag}
