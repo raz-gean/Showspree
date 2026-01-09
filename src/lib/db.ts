@@ -10,7 +10,13 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set in the environment");
 }
 
-const pool = new Pool({ connectionString });
+// For Neon and other managed Postgres providers, explicitly enable TLS.
+// This avoids issues where connection string params like `sslmode=require`
+// aren't respected by node-postgres in certain environments.
+const pool = new Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+});
 const adapter = new PrismaPg(pool);
 
 export const prisma =

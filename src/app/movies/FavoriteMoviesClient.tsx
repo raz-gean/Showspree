@@ -117,6 +117,14 @@ export function FavoriteMoviesClient({ movies, isAuthenticated }: Props) {
               >
                 <span>{isFav ? "Favorited" : "Favorite"}</span>
               </button>
+              <button
+                type="button"
+                disabled={!isAuthenticated}
+                className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] border border-zinc-700 text-zinc-300 disabled:cursor-not-allowed disabled:opacity-60"
+                title={isAuthenticated ? "Comments coming soon" : "Sign in to comment"}
+              >
+                Comment
+              </button>
             </div>
           </article>
         );

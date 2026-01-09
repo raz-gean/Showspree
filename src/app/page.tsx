@@ -25,7 +25,7 @@ function FadeSection({ children, className = "" }: FadeSectionProps) {
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
 
     observer.observe(element);
