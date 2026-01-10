@@ -18,4 +18,20 @@ export const MovieRepository = {
       data,
     });
   },
+
+  async update(
+    id: string,
+    data: { title?: string; description?: string; genre?: string }
+  ) {
+    return prisma.movie.update({
+      where: { id },
+      data,
+    });
+  },
+
+  async delete(id: string) {
+    return prisma.movie.delete({
+      where: { id },
+    });
+  },
 };
