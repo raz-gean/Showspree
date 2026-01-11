@@ -18,13 +18,22 @@ export type TmdbMovieSearchResult = {
   poster_path: string | null;
 };
 
+export type TmdbMovieDetails = {
+  id: number;
+  title: string;
+  overview: string;
+  poster_path: string | null;
+  genres?: { id: number; name: string }[];
+};
+
 export async function searchMovieByTitle(
   title: string
 ): Promise<TmdbMovieSearchResult | null> {
   const apiKey = getApiKey();
   if (!apiKey) return null;
 
-  const url = new URL("/search/movie", TMDB_API_BASE);
+  // NOTE: path must be relative (no leading slash) so we keep the /3 segment.
+  const url = new URL("search/movie", TMDB_API_BASE + "/");
   url.searchParams.set("api_key", apiKey);
   url.searchParams.set("query", title);
   url.searchParams.set("include_adult", "false");
@@ -41,6 +50,25 @@ export async function searchMovieByTitle(
   return data.results[0];
 }
 
+export async function fetchMovieById(
+  tmdbId: string
+): Promise<TmdbMovieDetails | null> {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
+  const url = new URL(`movie/${tmdbId}`, TMDB_API_BASE + "/");
+  url.searchParams.set("api_key", apiKey);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    console.error("TMDB movie fetch failed", await res.text());
+    return null;
+  }
+
+  const data = (await res.json()) as TmdbMovieDetails;
+  return data;
+}
+
 export function buildPosterUrl(posterPath: string | null): string | null {
   if (!posterPath) return null;
   // w500 is a good default size for posters
@@ -53,7 +81,7 @@ export async function fetchTrailerUrl(
   const apiKey = getApiKey();
   if (!apiKey) return null;
 
-  const url = new URL(`/movie/${tmdbId}/videos`, TMDB_API_BASE);
+  const url = new URL(`movie/${tmdbId}/videos`, TMDB_API_BASE + "/");
   url.searchParams.set("api_key", apiKey);
 
   const res = await fetch(url.toString());

@@ -16,11 +16,7 @@ export default function CreateMovieForm() {
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [title, setTitle] = useState("");
-  const [genre, setGenre] = useState("");
-  const [description, setDescription] = useState("");
-  const [posterUrl, setPosterUrl] = useState("");
+  const [tmdbInput, setTmdbInput] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -46,34 +42,27 @@ export default function CreateMovieForm() {
   }, []);
 
   function resetForm() {
-    setTitle("");
-    setGenre("");
-    setDescription("");
-    setPosterUrl("");
+    setTmdbInput("");
     setEditingId(null);
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-
-    if (!title || !genre) {
-      setError("Title and genre are required.");
+    if (!tmdbInput.trim()) {
+      setError("Please enter a TMDB movie URL or ID.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const payload = { title, genre, description, posterUrl };
+      const payload = { tmdbInput };
 
-      const res = await fetch(
-        editingId ? `/api/movies/${editingId}` : "/api/movies",
-        {
-          method: editingId ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch("/api/movies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -114,11 +103,9 @@ export default function CreateMovieForm() {
   }
 
   function startEdit(movie: Movie) {
+    // For now, editing existing movies still happens through the list below.
+    // We don't support changing the TMDB source from the UI.
     setEditingId(movie.id);
-    setTitle(movie.title);
-    setGenre(movie.genre);
-    setDescription(movie.description ?? "");
-    setPosterUrl(movie.posterUrl ?? "");
   }
 
   return (
@@ -131,35 +118,12 @@ export default function CreateMovieForm() {
 
       {/* CREATE / UPDATE FORM */}
       <form onSubmit={onSubmit} className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
-          />
-          <input
-            type="text"
-            placeholder="Genre"
-            value={genre}
-            onChange={(e) => setGenre(e.target.value)}
-            className="rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
-          />
-        </div>
         <input
           type="text"
-          placeholder="Poster URL or TMDB path (e.g. /xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg)"
-          value={posterUrl}
-          onChange={(e) => setPosterUrl(e.target.value)}
+          placeholder="TMDB movie URL or ID (e.g. 603 or https://www.themoviedb.org/movie/603-the-matrix)"
+          value={tmdbInput}
+          onChange={(e) => setTmdbInput(e.target.value)}
           className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
-        />
-        <textarea
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          className="w-full resize-none rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
         />
         <div className="flex items-center gap-2">
           <button
@@ -167,23 +131,8 @@ export default function CreateMovieForm() {
             disabled={submitting}
             className="rounded bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting
-              ? editingId
-                ? "Updating..."
-                : "Saving..."
-              : editingId
-              ? "Update movie"
-              : "Add movie"}
+            {submitting ? "Saving..." : "Add movie from TMDB"}
           </button>
-          {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="text-xs text-zinc-400 hover:text-zinc-200"
-            >
-              Cancel edit
-            </button>
-          )}
         </div>
       </form>
 

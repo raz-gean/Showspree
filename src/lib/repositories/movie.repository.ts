@@ -14,6 +14,7 @@ export const MovieRepository = {
   },
 
   async create(data: {
+    tmdbId?: string | null;
     title: string;
     description: string;
     genre: string;

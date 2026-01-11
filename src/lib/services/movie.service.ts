@@ -10,7 +10,14 @@ export const MovieService = {
     return MovieRepository.getById(id);
   },
 
-  async addMovie(title: string, description: string, genre: string) {
-    return MovieRepository.create({ title, description, genre });
+  async addMovieFromTmdb(params: {
+    tmdbId?: string | null;
+    title: string;
+    description: string;
+    genre: string;
+    posterUrl?: string | null;
+    trailerUrl?: string | null;
+  }) {
+    return MovieRepository.create(params);
   },
 };

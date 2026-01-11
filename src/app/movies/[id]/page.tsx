@@ -15,12 +15,22 @@ type MovieWithMedia = {
   trailerUrl?: string | null;
 };
 
-export default async function MovieDetailPage({
-  params,
-}: {
-  params: { id: string };
+export default async function MovieDetailPage(props: {
+  params: { id: string } | Promise<{ id: string }>;
 }) {
-  const movie: MovieWithMedia | null = await MovieService.getMovie(params.id);
+  const rawParams = props.params as any;
+  const resolvedParams =
+    rawParams && typeof rawParams.then === "function"
+      ? await rawParams
+      : rawParams;
+
+  const id = resolvedParams?.id as string | undefined;
+
+  if (!id) {
+    notFound();
+  }
+
+  const movie: MovieWithMedia | null = await MovieService.getMovie(id);
 
   if (!movie) {
     notFound();
