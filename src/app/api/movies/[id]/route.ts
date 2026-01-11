@@ -25,9 +25,15 @@ export async function GET(_req: Request, context: ParamsPromise) {
 export async function PUT(request: Request, context: ParamsPromise) {
   try {
     const body = await request.json();
-    const { title, description, genre } = body ?? {};
+    const { title, description, genre, posterUrl, trailerUrl } = body ?? {};
 
-    if (!title && !genre && typeof description === "undefined") {
+    if (
+      !title &&
+      !genre &&
+      typeof description === "undefined" &&
+      typeof posterUrl === "undefined" &&
+      typeof trailerUrl === "undefined"
+    ) {
       return NextResponse.json(
         { error: "Nothing to update" },
         { status: 400 }
@@ -40,6 +46,8 @@ export async function PUT(request: Request, context: ParamsPromise) {
       title,
       description,
       genre,
+      posterUrl,
+      trailerUrl,
     });
 
     return NextResponse.json(updated);

@@ -8,6 +8,7 @@ type Movie = {
   title: string;
   genre: string;
   description?: string | null;
+  posterUrl?: string | null;
 };
 
 export default function CreateMovieForm() {
@@ -19,6 +20,7 @@ export default function CreateMovieForm() {
   const [title, setTitle] = useState("");
   const [genre, setGenre] = useState("");
   const [description, setDescription] = useState("");
+  const [posterUrl, setPosterUrl] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -47,6 +49,7 @@ export default function CreateMovieForm() {
     setTitle("");
     setGenre("");
     setDescription("");
+    setPosterUrl("");
     setEditingId(null);
   }
 
@@ -61,7 +64,7 @@ export default function CreateMovieForm() {
 
     setSubmitting(true);
     try {
-      const payload = { title, genre, description };
+      const payload = { title, genre, description, posterUrl };
 
       const res = await fetch(
         editingId ? `/api/movies/${editingId}` : "/api/movies",
@@ -115,6 +118,7 @@ export default function CreateMovieForm() {
     setTitle(movie.title);
     setGenre(movie.genre);
     setDescription(movie.description ?? "");
+    setPosterUrl(movie.posterUrl ?? "");
   }
 
   return (
@@ -143,6 +147,13 @@ export default function CreateMovieForm() {
             className="rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
           />
         </div>
+        <input
+          type="text"
+          placeholder="Poster URL or TMDB path (e.g. /xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg)"
+          value={posterUrl}
+          onChange={(e) => setPosterUrl(e.target.value)}
+          className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
+        />
         <textarea
           placeholder="Description (optional)"
           value={description}

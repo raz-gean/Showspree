@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Movie = {
   id: string;
@@ -9,6 +10,7 @@ type Movie = {
   description: string;
   genre: string;
   createdAt: string | Date;
+  posterUrl?: string | null;
 };
 
 type FavoritesResponse = { movieId: string }[];
@@ -86,6 +88,17 @@ export function FavoriteMoviesClient({ movies, isAuthenticated }: Props) {
             className="group flex flex-col justify-between rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] transition-colors hover:border-zinc-400/60"
           >
             <div className="space-y-2">
+              {movie.posterUrl && (
+                <div className="mb-2 overflow-hidden rounded-xl border border-zinc-800 bg-black/40">
+                  <Image
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    width={400}
+                    height={600}
+                    className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                </div>
+              )}
               <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">
                 {movie.genre}
               </p>

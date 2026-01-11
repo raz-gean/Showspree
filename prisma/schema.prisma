@@ -21,6 +21,8 @@ model Movie {
   title       String
   description String
   genre       String
+  posterUrl   String?
+  trailerUrl  String?
   createdAt   DateTime @default(now())
 
   favorites Favorite[]

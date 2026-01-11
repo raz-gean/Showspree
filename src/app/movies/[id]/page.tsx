@@ -1,132 +1,122 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { MovieService } from "@/lib/services/movie.service";
-import React from "react";
 
 export const runtime = "nodejs";
 
-function genreToBackdrop(genre: string) {
-  const key = genre.toLowerCase();
-  if (key.includes("sci")) return "/showcase/sci-fi.jpg";
-  if (key.includes("romance") || key.includes("drama")) return "/showcase/romance.jpg";
-  if (key.includes("action")) return "/showcase/action.jpg";
-  if (key.includes("comedy")) return "/showcase/comedy.jpg";
-  return "/showcase/sci-fi.jpg";
-}
+type MovieWithMedia = {
+  id: string;
+  createdAt: Date;
+  title: string;
+  description: string;
+  genre: string;
+  posterUrl?: string | null;
+  trailerUrl?: string | null;
+};
 
 export default async function MovieDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const movie = await MovieService.getMovie(params.id);
+  const movie: MovieWithMedia | null = await MovieService.getMovie(params.id);
 
   if (!movie) {
     notFound();
   }
 
-  const backdrop = genreToBackdrop(movie.genre);
+  const similarAll = await MovieService.listMovies();
+  const similar = similarAll
+    .filter((m) => m.id !== movie.id && m.genre === movie.genre)
+    .slice(0, 4);
 
   return (
     <main className="min-h-screen bg-black text-zinc-50">
-      {/* HERO */}
-      <section className="relative w-full border-b border-zinc-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-60 blur-sm"
-            style={{ backgroundImage: `url(${backdrop})` }}
-          />
-          <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/90 to-black" />
+      {/* Simple header + poster */}
+      <section className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-start sm:py-12">
+        <div className="mx-auto w-full max-w-xs overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/80 shadow-xl sm:mx-0 sm:w-56">
+          {movie.posterUrl ? (
+            <Image
+              src={movie.posterUrl}
+              alt={movie.title}
+              width={400}
+              height={600}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-80 items-center justify-center text-xs text-zinc-600">
+              No poster available
+            </div>
+          )}
         </div>
 
-        <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 pb-10 pt-20 sm:flex-row sm:items-end sm:pb-14 sm:pt-24">
-          <div className="hidden h-56 w-40 shrink-0 overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-900/70 shadow-[0_18px_45px_rgba(0,0,0,0.9)] sm:block">
-            <div
-              className="h-full w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${backdrop})` }}
-            />
-          </div>
+        <div className="flex-1 space-y-4">
+          <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-500">
+            {movie.genre}
+          </p>
+          <h1 className="text-3xl font-semibold sm:text-4xl">
+            {movie.title}
+          </h1>
+          <p className="max-w-xl text-sm text-zinc-300">{movie.description}</p>
 
-          <div className="space-y-3">
-            <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-zinc-400">
-              {movie.genre}
-            </p>
-            <h1 className="text-3xl font-semibold sm:text-4xl md:text-5xl">
-              {movie.title}
-            </h1>
-            <p className="max-w-xl text-sm text-zinc-300">
-              {movie.description}
-            </p>
+          <p className="text-xs text-zinc-500">
+            Added on {new Date(movie.createdAt).toLocaleDateString()}
+          </p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
-              <button className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-black shadow-[0_10px_30px_rgba(0,0,0,0.7)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(0,0,0,0.9)]">
+          <div className="mt-4 flex flex-wrap gap-3 text-xs">
+            {movie.trailerUrl && (
+              <a
+                href={movie.trailerUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-black hover:bg-zinc-200"
+              >
                 Watch trailer
-              </button>
-              <button className="inline-flex items-center justify-center rounded-full border border-zinc-600 bg-black/60 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-100 transition-colors hover:border-white hover:bg-zinc-900">
-                Add to favorites
-              </button>
-            </div>
+              </a>
+            )}
+            <Link
+              href="/movies"
+              className="inline-flex items-center rounded-full border border-zinc-700 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-200 hover:border-zinc-400"
+            >
+              Back to library
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* DETAILS BODY */}
-      <section className="mx-auto max-w-5xl px-4 py-10 space-y-10">
-        <div className="space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">
-            Overview
+      {/* Similar movies */}
+      <section className="mx-auto max-w-5xl px-4 pb-12">
+        <div className="border-t border-zinc-900 pt-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">
+            Similar movies
           </h2>
-          <p className="max-w-2xl text-sm leading-relaxed text-zinc-300">
-            {movie.description}
-          </p>
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-400">
-              Suggested for you
-            </h3>
-            <p className="text-sm text-zinc-400">
-              This area can later host ML-powered recommendations: similar
-              movies, trending picks, or "because you liked" sections. For now
-              it's a placeholder to show where the intelligence of Showspree
-              will live.
+          {similar.length === 0 ? (
+            <p className="text-xs text-zinc-500">
+              No similar movies yet. Add more titles in this genre to see
+              suggestions here.
             </p>
-          </div>
-
-          <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4 text-xs text-zinc-300">
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-zinc-400">
-              Quick info
-            </h3>
-            <dl className="space-y-2">
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Genre</dt>
-                <dd className="text-zinc-100">{movie.genre}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Added</dt>
-                <dd className="text-zinc-100">
-                  {new Date(movie.createdAt).toLocaleDateString()}
-                </dd>
-              </div>
-            </dl>
-
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
-              <span className="rounded-full border border-zinc-700 px-3 py-1 uppercase tracking-[0.2em] text-zinc-400">
-                Watch on Netflix
-              </span>
-              <span className="rounded-full border border-zinc-700 px-3 py-1 uppercase tracking-[0.2em] text-zinc-400">
-                Watch on Prime
-              </span>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+              {similar.map((m) => (
+                <Link
+                  key={m.id}
+                  href={`/movies/${m.id}`}
+                  className="group rounded-2xl border border-zinc-800 bg-zinc-950/70 p-3 text-xs text-zinc-200 hover:border-zinc-400"
+                >
+                  <p className="mb-1 text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+                    {m.genre}
+                  </p>
+                  <p className="line-clamp-2 text-sm font-semibold text-zinc-50">
+                    {m.title}
+                  </p>
+                  <p className="mt-1 line-clamp-3 text-[11px] text-zinc-500">
+                    {m.description}
+                  </p>
+                </Link>
+              ))}
             </div>
-          </div>
-        </div>
-
-        <div className="pt-4 text-xs text-zinc-500 flex items-center justify-between border-t border-zinc-900">
-          <Link href="/movies" className="hover:text-zinc-300">
-            1 Back to library
-          </Link>
-          <span>Showspree b7 Movie detail prototype</span>
+          )}
         </div>
       </section>
     </main>

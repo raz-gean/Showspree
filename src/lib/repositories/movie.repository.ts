@@ -13,7 +13,13 @@ export const MovieRepository = {
     });
   },
 
-  async create(data: { title: string; description: string; genre: string }) {
+  async create(data: {
+    title: string;
+    description: string;
+    genre: string;
+    posterUrl?: string | null;
+    trailerUrl?: string | null;
+  }) {
     return prisma.movie.create({
       data,
     });
@@ -21,11 +27,22 @@ export const MovieRepository = {
 
   async update(
     id: string,
-    data: { title?: string; description?: string; genre?: string }
+    data: {
+      title?: string;
+      description?: string | null;
+      genre?: string;
+      posterUrl?: string | null;
+      trailerUrl?: string | null;
+    }
   ) {
+    const { description, ...rest } = data;
+
     return prisma.movie.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(typeof description === "string" ? { description } : {}),
+      },
     });
   },
 

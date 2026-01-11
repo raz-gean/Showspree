@@ -45,84 +45,48 @@ export default async function MoviesPage() {
   return (
     <LayoutShell>
       <main className="bg-black text-zinc-50">
-        <section className="mx-auto max-w-5xl px-4 pt-10 pb-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        {/* Hero / landing section */}
+        <section className="flex min-h-screen w-full items-center justify-center border-b border-white/10 bg-[radial-gradient(circle_at_top,#27272a,#020617_55%)] px-4">
+          <div className="mx-auto flex w-full max-w-5xl flex-col items-start gap-6 py-16 sm:py-24">
+            <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-500">
+              Welcome
+            </p>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-400">
-                Library
-              </p>
-              <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">
-                Browse movies
+              <h1 className="text-4xl font-semibold tracking-tight text-zinc-50 sm:text-5xl">
+                Ready to browse movies?
               </h1>
-              <p className="mt-2 max-w-xl text-sm text-zinc-400">
-                A minimal, fast catalog designed for testing auth, favorites,
-                and recommendation logic. No real streaming — just clean data.
+              <p className="mt-3 max-w-xl text-sm text-zinc-400">
+                Use this sandbox catalog to explore titles, test
+                authentication, and play with favorites  no streaming,
+                just clean data and posters.
               </p>
             </div>
-
-            {!session && (
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-zinc-200 shadow-lg shadow-black/40">
-                <p className="mb-2 font-medium">
-                  You're browsing as guest.
-                </p>
-                <p className="mb-3 text-[11px] text-zinc-400">
-                  Sign in to favorite titles and keep your picks in sync.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href="/login"
-                    className="inline-flex rounded-full bg-white px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black hover:bg-zinc-200"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="inline-flex rounded-full border border-white/20 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-100 hover:border-white hover:bg-white/10"
-                  >
-                    Create account
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {spotlightCards.map((card) => (
-              <div
-                key={card.title}
-                className="group rounded-2xl border border-white/10 bg-linear-to-br from-zinc-900 to-zinc-950 p-4 text-sm shadow-lg shadow-black/40 transition hover:border-white/30 hover:-translate-y-0.5"
-              >
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                  {card.tag}
-                </p>
-                <h2 className="text-base font-semibold text-zinc-50">
-                  {card.title}
-                </h2>
-                <p className="mt-2 text-xs text-zinc-400">
-                  {card.description}
-                </p>
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="#movies-library"
+                className="inline-flex items-center rounded-full bg-white px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black transition hover:bg-zinc-200"
+             >
+                Browse library
+              </Link>
+              <span className="text-[11px] text-zinc-500">
+                Or scroll to see curated picks, your sandbox, and more.
+              </span>
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl space-y-10 px-4 pb-16">
+        <section
+          id="movies-library"
+          className="mx-auto max-w-5xl space-y-10 px-4 py-12 sm:py-16"
+        >
           <div className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">
-              Your sandbox
+              Popular Movies
             </h2>
-            <p className="text-xs text-zinc-500">
-              Add a few movies to experiment with auth, favorites and
-              recommendations. Everything stays local to your account.
-            </p>
-            <CreateMovieForm />
-          </div>
-
-          <div className="space-y-4">
             {movies.length === 0 ? (
               <p className="text-sm text-zinc-500">
-                No movies yet. Seed a few entries using Prisma or your admin
-                tools, then refresh this page.
+                No movies yet. Add a few titles in your sandbox below to start
+                populating this section.
               </p>
             ) : (
               <>
@@ -138,6 +102,17 @@ export default async function MoviesPage() {
                 )}
               </>
             )}
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">
+              Your sandbox
+            </h2>
+            <p className="text-xs text-zinc-500">
+              Add a few movies to experiment with auth, favorites and
+              recommendations. Everything stays local to your account.
+            </p>
+            <CreateMovieForm />
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-8">
@@ -157,6 +132,30 @@ export default async function MoviesPage() {
                   {item}
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Contact / help section */}
+        <section className="border-t border-white/10 bg-zinc-950/80 px-4 py-10 sm:py-12">
+          <div className="mx-auto flex max-w-5xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">
+                Need help?
+              </h2>
+              <p className="max-w-md text-xs text-zinc-500">
+                Have questions about Showspree, setting up your movie sandbox,
+                or connecting to your Neon database? Reach out and well help
+                you get unstuck.
+              </p>
+            </div>
+            <div className="space-y-2 text-xs text-zinc-300">
+              <p className="font-semibold text-zinc-100">Contact the Showspree team</p>
+              <p className="text-zinc-400">Email: support@showspree.dev (demo)</p>
+              <p className="text-zinc-500">
+                This is a demo app  update this section with your real
+                contact details when you deploy.
+              </p>
             </div>
           </div>
         </section>
